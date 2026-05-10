@@ -184,46 +184,86 @@
   .pill.under  { background: rgba(37,99,235,0.1); color: var(--accent); }
   .pill.exact  { background: rgba(22,163,74,0.1); color: var(--good); }
 
-  /* Step3 配對箭頭 */
-  .pair-list { display: flex; flex-direction: column; gap: 10px; }
+  /* Step3 樓層調派 */
+  .pair-list { display: flex; flex-direction: column; gap: 8px; }
   .pair-card {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius); overflow: hidden;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   }
-  .pair-card.warn-card { border-color: var(--warn); }
-  .pair-inner {
-    display: flex; align-items: center; padding: 12px 14px; gap: 8px;
+  .pair-card.split-card { border-color: rgba(37,99,235,0.25); }
+
+  .floor-dispatch-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; background: var(--surface2);
+    border-bottom: 1px solid var(--border);
   }
-  .pair-floor-box { text-align: center; min-width: 52px; }
-  .pair-floor-num {
+  .floor-dispatch-num {
     font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 700;
-    color: var(--accent); line-height: 1;
+    color: var(--accent); min-width: 40px;
   }
-  .pair-floor-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
-  .arrow-area { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-  .arrow-line { display: flex; align-items: center; width: 100%; gap: 4px; }
-  .arrow-track { flex: 1; height: 2px; position: relative; }
-  .arrow-track::after {
-    content: ''; position: absolute; right: -1px; top: -4px;
-    border-left: 6px solid; border-top: 4px solid transparent; border-bottom: 4px solid transparent;
+  .floor-dispatch-total {
+    flex: 1; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted);
   }
-  .arrow-track.co { background: var(--warn); }
-  .arrow-track.co::after { border-left-color: var(--warn); }
-  .arrow-track.st { background: var(--good); }
-  .arrow-track.st::after { border-left-color: var(--good); }
-  .arrow-chip {
-    font-size: 10px; border-radius: 4px; padding: 2px 6px;
-    font-family: 'DM Mono', monospace; white-space: nowrap;
+  .floor-dispatch-tag {
+    font-size: 10px; font-weight: 700; border-radius: 4px; padding: 2px 8px;
+    letter-spacing: 0.5px;
   }
-  .arrow-chip.co { background: rgba(224,112,64,0.2); color: var(--warn); }
-  .arrow-chip.st { background: rgba(64,192,128,0.15); color: var(--good); }
-  .solo-label { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; text-align: center; flex: 1; }
-  .pair-note {
-    padding: 6px 14px 10px; font-size: 11px; color: var(--muted);
-    border-top: 1px dashed var(--border);
+  .floor-dispatch-tag.single { background: rgba(22,163,74,0.1); color: var(--good); }
+  .floor-dispatch-tag.split  { background: rgba(37,99,235,0.1); color: var(--accent); }
+
+  .floor-dispatch-body { padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+
+  .dispatch-row {
+    display: flex; align-items: center; gap: 8px;
   }
-  .pair-note.wn { color: var(--warn); }
+  .dispatch-chips { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+  .dispatch-arrow { color: var(--muted); font-size: 14px; flex-shrink: 0; }
+
+  .dchip {
+    font-size: 12px; font-family: 'DM Mono', monospace; font-weight: 700;
+    border-radius: 5px; padding: 3px 8px;
+  }
+  .dchip.co    { background: rgba(220,38,38,0.08); color: var(--warn); }
+  .dchip.st    { background: rgba(22,163,74,0.08); color: var(--good); }
+  .dchip.total { background: var(--surface2); color: var(--muted); font-weight: 400; }
+
+  .floor-dest {
+    font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700;
+    color: var(--accent); white-space: nowrap;
+  }
+  .stay-dest { color: var(--muted); font-weight: 400; }
+  .stay-row { opacity: 0.6; }
+
+  .person-badge {
+    font-size: 11px; font-family: 'DM Mono', monospace; font-weight: 700;
+    background: var(--accent); color: #fff;
+    border-radius: 4px; padding: 2px 8px; white-space: nowrap;
+  }
+
+  /* 人員彙整 */
+  .person-summary-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; margin-top: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .person-summary-title {
+    padding: 10px 14px; background: var(--accent); color: #fff;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+  }
+  .person-summary-row {
+    display: flex; align-items: center; gap: 8px; padding: 9px 14px;
+    border-bottom: 1px solid var(--border); flex-wrap: wrap;
+  }
+  .person-summary-row:last-child { border-bottom: none; }
+  .person-summary-floors {
+    flex: 1; font-size: 13px; font-weight: 700; color: var(--text);
+    font-family: 'DM Mono', monospace;
+  }
+  .person-summary-total {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace;
+  }
 
   /* Step4 最終結果 */
   .final-card {
@@ -778,59 +818,106 @@ function calculate() {
     }).join('')}
     </tbody>`;
 
-  // STEP 3 配對過程
-  const warns3 = [];
+  // STEP 3 配對過程（以樓層為主角）
+  // 建立「每層給出去了什麼」的視角
+  // 找出每個人的主樓（拿最多間的那層）和副樓（跨過去的那層）
+  // 從樓層角度：這層有沒有間數被帶去別層？
 
-  const pairHTML = persons.map(p => {
-    const fl = p.floorList;
-    if (fl.length === 1) {
-      return `
-      <div class="pair-card">
-        <div class="pair-inner">
-          <div class="pair-floor-box">
-            <div class="pair-floor-num">${fl[0]}F</div>
-            <div class="pair-floor-sub">單樓</div>
-          </div>
-          <div class="arrow-area"><div class="solo-label">— 人員${p.id}，只跑本層 —</div></div>
-          <div class="pair-floor-box">
-            <div class="pair-floor-num" style="color:var(--good)">✓</div>
-            <div class="pair-floor-sub">${p.totalRooms}間</div>
-          </div>
-        </div>
-        <div class="pair-note">人員${p.id}｜${fl[0]}F ${p.totalRooms}間（退${p.totalCo} 續${p.totalSt}）</div>
-      </div>`;
+  // 建立每層的「流出」資訊：哪些人把這層的房間帶去別層
+  // 一個人如果跑兩層，他的副樓對主樓來說是「流出」
+  const floorOutflow = {}; // floor -> [{ toPerson, toFloor, co, st, total }]
+  raw.forEach(d => floorOutflow[d.floor] = []);
+
+  persons.forEach(p => {
+    if (p.floorList.length < 2) return;
+    // 找主樓（間數最多）和副樓
+    const sorted = p.floorList.map(f => {
+      const r = p.rooms.find(r => r.floor === f);
+      return { floor: f, count: r ? r.count : 0, co: r ? r.co : 0, st: r ? r.st : 0 };
+    }).sort((a, b) => b.count - a.count);
+
+    const mainFloor = sorted[0].floor;
+    // 副樓：這個人從副樓帶走的間數，對副樓來說是「流出」
+    for (let i = 1; i < sorted.length; i++) {
+      const sub = sorted[i];
+      floorOutflow[sub.floor].push({
+        personId: p.id,
+        toFloor: mainFloor,
+        co: sub.co,
+        st: sub.st,
+        total: sub.count,
+      });
     }
-    const pair = pairs.find(pr => pr.personId === p.id);
-    if (!pair) return '';
-    const dist = Math.abs(pair.crossFloor - pair.mainFloor);
+  });
+
+  const floorDispatch = raw.map(d => {
+    const outflows = floorOutflow[d.floor] || [];
+    const outCo = outflows.reduce((s, o) => s + o.co, 0);
+    const outSt = outflows.reduce((s, o) => s + o.st, 0);
+    const stayCo = d.checkout - outCo;
+    const staySt = d.stay - outSt;
+    const hasOutflow = outflows.length > 0;
+    return { ...d, outflows, outCo, outSt, stayCo, staySt, hasOutflow };
+  });
+
+  const pairHTML = floorDispatch.map(fd => {
+    const tag = fd.hasOutflow
+      ? `<span class="floor-dispatch-tag split">需調撥</span>`
+      : `<span class="floor-dispatch-tag single">不用調整</span>`;
+
+    // 流出的行
+    const outRows = fd.outflows.map(o => `
+      <div class="dispatch-row">
+        <div class="dispatch-chips">
+          ${o.co > 0 ? `<span class="dchip co">退 ${o.co}</span>` : ''}
+          ${o.st > 0 ? `<span class="dchip st">續 ${o.st}</span>` : ''}
+        </div>
+        <div class="dispatch-arrow">→</div>
+        <span class="floor-dest">${o.toFloor}F</span>
+      </div>`).join('');
+
+    // 留在本層的
+    const stayRow = (fd.stayCo > 0 || fd.staySt > 0) ? `
+      <div class="dispatch-row stay-row">
+        <div class="dispatch-chips">
+          ${fd.stayCo > 0 ? `<span class="dchip co">退 ${fd.stayCo}</span>` : ''}
+          ${fd.staySt > 0 ? `<span class="dchip st">續 ${fd.staySt}</span>` : ''}
+        </div>
+        <div class="dispatch-arrow">→</div>
+        <span class="floor-dest stay-dest">本層</span>
+      </div>` : '';
+
     return `
-    <div class="pair-card">
-      <div class="pair-inner">
-        <div class="pair-floor-box">
-          <div class="pair-floor-num">${pair.mainFloor}F</div>
-          <div class="pair-floor-sub">主樓</div>
-        </div>
-        <div class="arrow-area">
-          ${pair.crossCo > 0 ? `<div class="arrow-line">
-            <span class="arrow-chip co">退${pair.crossCo}</span>
-            <div class="arrow-track co"></div>
-          </div>` : ''}
-          ${pair.crossSt > 0 ? `<div class="arrow-line">
-            <span class="arrow-chip st">續${pair.crossSt}</span>
-            <div class="arrow-track st"></div>
-          </div>` : ''}
-        </div>
-        <div class="pair-floor-box">
-          <div class="pair-floor-num">${pair.crossFloor}F</div>
-          <div class="pair-floor-sub">跨${pair.crossTotal}間</div>
-        </div>
+    <div class="pair-card${fd.hasOutflow ? ' split-card' : ''}">
+      <div class="floor-dispatch-header">
+        <span class="floor-dispatch-num">${fd.floor}F</span>
+        <span class="floor-dispatch-total">共${fd.total}間｜退${fd.checkout} 續${fd.stay}</span>
+        ${tag}
       </div>
-      <div class="pair-note">人員${p.id}｜${pair.mainFloor}F＋${pair.crossFloor}F，距離${dist}層，共${p.totalRooms}間（退${p.totalCo} 續${p.totalSt}）</div>
+      ${fd.hasOutflow ? `<div class="floor-dispatch-body">${outRows}${stayRow}</div>` : ''}
     </div>`;
   }).join('');
 
-  document.getElementById('warn-area-3').innerHTML = warns3.map(w => `<div class="warn-box">${w}</div>`).join('');
-  document.getElementById('pair-list').innerHTML = pairHTML;
+  // 人員彙整
+  const personSummaryHTML = persons.map(p => {
+    const floorStr = p.floorList.map(f => `${f}F`).join(' ＋ ');
+    return `<div class="person-summary-row">
+      <span class="person-badge">人員${p.id}</span>
+      <span class="person-summary-floors">${floorStr}</span>
+      <span class="person-summary-total">
+        <span class="dchip co">退${p.totalCo}</span>
+        <span class="dchip st">續${p.totalSt}</span>
+        共${p.totalRooms}間
+      </span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('warn-area-3').innerHTML = '';
+  document.getElementById('pair-list').innerHTML = pairHTML +
+    `<div class="person-summary-box">
+      <div class="person-summary-title">人員彙整</div>
+      ${personSummaryHTML}
+    </div>`;
 
   // STEP 4 最終分配
   const coArr = persons.map(p => p.totalCo);
