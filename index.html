@@ -6,400 +6,177 @@
 <title>房務排班計算器</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap');
-
   :root {
-    --bg: #f5f6f8;
-    --surface: #ffffff;
-    --surface2: #f0f1f4;
-    --border: #e2e4ea;
-    --accent: #2563eb;
-    --good: #16a34a;
-    --warn: #dc2626;
-    --text: #1a1d23;
-    --muted: #6b7280;
-    --radius: 12px;
+    --bg:#f5f6f8; --surface:#fff; --surface2:#f0f1f4; --border:#e2e4ea;
+    --accent:#2563eb; --good:#16a34a; --warn:#dc2626;
+    --text:#1a1d23; --muted:#6b7280; --radius:12px;
   }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:60px;}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Noto Sans TC', sans-serif;
-    background: var(--bg); color: var(--text);
-    min-height: 100vh; padding-bottom: 60px;
-  }
+  header{background:var(--accent);padding:16px 20px 12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(37,99,235,.2);}
+  header h1{font-size:18px;font-weight:900;color:#fff;}
+  header p{font-size:11px;color:rgba(255,255,255,.7);margin-top:2px;font-family:'DM Mono',monospace;}
 
-  header {
-    background: var(--accent);
-    padding: 16px 20px 12px; position: sticky; top: 0; z-index: 100;
-    box-shadow: 0 2px 8px rgba(37,99,235,0.2);
-  }
-  header h1 { font-size: 18px; font-weight: 900; color: #fff; }
-  header p  { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 2px; font-family: 'DM Mono', monospace; }
+  .section{padding:16px 16px 0;}
+  .section-title{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
 
-  .section { padding: 16px 16px 0; }
-  .section-title {
-    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
-    color: var(--muted); text-transform: uppercase; margin-bottom: 10px;
-  }
+  /* 頂部設定 */
+  .top-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+  .top-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;flex-direction:column;gap:4px;}
+  .top-card label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  .top-card select{background:none;border:none;outline:none;color:var(--accent);font-family:'DM Mono',monospace;font-size:28px;font-weight:700;width:100%;-webkit-appearance:none;appearance:none;cursor:pointer;}
+  .summary-bar{background:var(--accent);border-radius:var(--radius);padding:12px 16px;font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,.8);line-height:2;}
+  .summary-bar span{color:#fff;font-weight:700;}
+  .summary-bar .big{font-size:18px;}
 
-  /* 人力輸入 */
-  .staff-row {
-    display: flex; gap: 10px; align-items: stretch; margin-bottom: 8px;
-  }
-  .staff-box {
-    flex: 1; background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 14px 16px;
-    display: flex; flex-direction: column; gap: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-  .staff-box label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
-  .staff-box select {
-    background: none; border: none; outline: none;
-    color: var(--accent); font-family: 'DM Mono', monospace;
-    font-size: 32px; font-weight: 700; width: 100%;
-    -webkit-appearance: none; appearance: none; cursor: pointer;
-  }
-  .staff-result {
-    background: var(--accent); border-radius: var(--radius); padding: 14px 16px;
-    font-family: 'DM Mono', monospace; font-size: 13px; color: rgba(255,255,255,0.8);
-    line-height: 1.9;
-  }
-  .staff-result span { color: #fff; font-weight: 700; }
-  .staff-result .big { color: #fff; font-size: 22px; }
+  /* 模式切換 */
+  .mode-row{display:flex;gap:8px;margin-bottom:10px;}
+  .mode-btn{flex:1;padding:12px 8px;border-radius:var(--radius);border:2px solid var(--border);background:var(--surface);color:var(--muted);font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;line-height:1.4;}
+  .mode-btn .mode-sub{font-size:10px;font-weight:400;display:block;margin-top:3px;opacity:.7;}
+  .mode-btn.active{border-color:var(--accent);background:rgba(37,99,235,.06);color:var(--accent);}
+  .mode-hint{font-size:12px;color:var(--muted);background:var(--surface2);border-radius:8px;padding:10px 12px;margin-bottom:4px;line-height:1.6;}
 
   /* 樓層卡片 */
-  .floor-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); margin-bottom: 8px; overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-  .floor-header {
-    display: flex; align-items: center; padding: 10px 14px;
-    background: var(--surface2); gap: 10px; border-bottom: 1px solid var(--border);
-  }
-  .floor-badge {
-    font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 700;
-    color: var(--accent); min-width: 44px;
-  }
-  .floor-summary { flex: 1; font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
-  .floor-total {
-    font-size: 13px; font-weight: 700; font-family: 'DM Mono', monospace;
-    color: var(--surface); background: var(--accent);
-    border-radius: 20px; padding: 2px 10px;
-  }
-  .floor-inputs {
-    padding: 10px 12px; display: grid;
-    grid-template-columns: 1.2fr 1fr 1fr; gap: 8px;
-  }
-  .input-group { position: relative; }
-  .input-group label {
-    display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
-    margin-bottom: 4px; text-transform: uppercase;
-  }
-  .input-group.floor-col label { color: var(--accent); }
-  .input-group.co-col   label { color: var(--warn); }
-  .input-group.st-col   label { color: var(--good); }
+  .floor-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+  .floor-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);}
+  .floor-num{font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:var(--accent);min-width:48px;}
+  .floor-meta{flex:1;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;line-height:1.7;}
+  .floor-total-badge{background:var(--accent);color:#fff;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;border-radius:20px;padding:2px 10px;}
+  .remove-btn{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 4px;}
 
-  .input-group select {
-    width: 100%; background: var(--bg); border: 1px solid var(--border);
-    border-radius: 8px; padding: 10px 8px; 
-    font-size: 18px; font-family: 'DM Mono', monospace; font-weight: 700;
-    text-align: center; outline: none; -webkit-appearance: none; appearance: none;
-    cursor: pointer; transition: border-color 0.2s, background 0.2s;
-  }
-  .input-group.floor-col select { color: var(--accent); border-color: rgba(37,99,235,0.3); background: rgba(37,99,235,0.03); }
-  .input-group.floor-col select:focus { border-color: var(--accent); background: rgba(37,99,235,0.07); }
-  .input-group.co-col select { color: var(--warn); border-color: rgba(220,38,38,0.3); background: rgba(220,38,38,0.03); }
-  .input-group.co-col select:focus { border-color: var(--warn); background: rgba(220,38,38,0.07); }
-  .input-group.st-col select { color: var(--good); border-color: rgba(22,163,74,0.3); background: rgba(22,163,74,0.03); }
-  .input-group.st-col select:focus { border-color: var(--good); background: rgba(22,163,74,0.07); }
+  .floor-inputs{padding:10px 12px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;}
+  .floor-inputs.manual-mode{grid-template-columns:1fr 1fr 1fr 1fr 1fr;}
+  .inp-group{display:flex;flex-direction:column;gap:4px;}
+  .inp-group label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+  .inp-group.g-floor label{color:var(--accent);}
+  .inp-group.g-co    label{color:var(--warn);}
+  .inp-group.g-st    label{color:var(--good);}
+  .inp-group.g-tgt   label{color:var(--text);}
+  .inp-group.g-keep  label{color:#9333ea;}
+  .inp-group select{width:100%;border-radius:8px;padding:8px 4px;font-size:16px;font-family:'DM Mono',monospace;font-weight:700;text-align:center;outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;border:1px solid var(--border);background:var(--bg);transition:border-color .15s;}
+  .inp-group.g-floor select{color:var(--accent);border-color:rgba(37,99,235,.25);}
+  .inp-group.g-co    select{color:var(--warn);  border-color:rgba(220,38,38,.25);}
+  .inp-group.g-st    select{color:var(--good);  border-color:rgba(22,163,74,.25);}
+  .inp-group.g-tgt   select{color:var(--text);  border-color:var(--border);}
+  .inp-group.g-keep  select{color:#9333ea;       border-color:rgba(147,51,234,.35);background:rgba(147,51,234,.04);}
 
-  .remove-btn { background: none; border: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 2px 6px; }
+  .add-floor-btn{width:calc(100% - 32px);margin:8px 16px 0;padding:12px;background:transparent;border:2px dashed var(--border);border-radius:var(--radius);color:var(--muted);font-family:'Noto Sans TC',sans-serif;font-size:13px;cursor:pointer;}
+  .calc-btn{width:calc(100% - 32px);margin:16px 16px 0;padding:16px;background:var(--accent);border:none;border-radius:var(--radius);color:#fff;font-family:'Noto Sans TC',sans-serif;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(37,99,235,.3);}
+  .calc-btn:active{opacity:.85;}
 
-  .add-floor-btn {
-    width: calc(100% - 32px); margin: 8px 16px 0; padding: 12px;
-    background: transparent; border: 2px dashed var(--border);
-    border-radius: var(--radius); color: var(--muted);
-    font-family: 'Noto Sans TC', sans-serif; font-size: 13px; cursor: pointer;
-    transition: border-color 0.2s, color 0.2s;
-  }
-  .add-floor-btn:active { border-color: var(--accent); color: var(--accent); }
+  .divider{height:1px;background:var(--border);margin:20px 16px 0;}
 
-  .calc-btn {
-    width: calc(100% - 32px); margin: 16px 16px 0; padding: 16px;
-    background: var(--accent); border: none; border-radius: var(--radius);
-    color: #fff; font-family: 'Noto Sans TC', sans-serif; font-size: 16px;
-    font-weight: 900; cursor: pointer; -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 4px 12px rgba(37,99,235,0.3);
-  }
-  .calc-btn:active { opacity: 0.85; transform: translateY(1px); }
+  /* 結果共用 */
+  .step-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .step-num{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;background:var(--accent);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .step-label{font-size:13px;font-weight:700;}
+  .step-sub{font-size:11px;color:var(--muted);margin-top:1px;}
 
-  .divider { height: 1px; background: var(--border); margin: 20px 16px 0; }
+  .ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+  .ov-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+  .ov-value{font-family:'DM Mono',monospace;font-size:26px;color:var(--accent);}
+  .ov-label{font-size:10px;color:var(--muted);margin-top:4px;}
+  .ov-sub{font-size:11px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace;}
 
-  /* 結果區 */
-  .step-header {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
-  }
-  .step-num {
-    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700;
-    background: var(--accent); color: #fff; border-radius: 50%;
-    width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .step-label { font-size: 13px; font-weight: 700; }
-  .step-sub   { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  table{width:100%;border-collapse:collapse;font-size:12px;}
+  th{font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;padding:8px 6px;text-align:center;border-bottom:1px solid var(--border);background:var(--surface2);}
+  td{padding:8px 6px;text-align:center;font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);}
+  tr:last-child td{border-bottom:none;}
+  .tc-floor{color:var(--accent);font-weight:700;}
+  .tc-co{color:var(--warn);}
+  .tc-st{color:var(--good);}
+  .tc-keep{color:#9333ea;font-weight:700;}
 
-  /* Step1 總覽格 */
-  .overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-  .ov-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 14px 12px; text-align: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-  .ov-value { font-family: 'DM Mono', monospace; font-size: 26px; color: var(--accent); line-height: 1; }
-  .ov-label { font-size: 10px; color: var(--muted); margin-top: 5px; }
-  .ov-sub   { font-size: 11px; color: var(--muted); margin-top: 3px; font-family: 'DM Mono', monospace; }
+  .pill{display:inline-block;border-radius:5px;padding:2px 8px;font-size:11px;font-family:'DM Mono',monospace;font-weight:700;}
+  .pill.surplus{background:rgba(220,38,38,.08);color:var(--warn);}
+  .pill.ok{background:rgba(22,163,74,.08);color:var(--good);}
 
-  /* Step2 缺口表 */
-  .table-wrap {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); overflow: hidden; margin-bottom: 4px;
-  }
-  .gap-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .gap-table th {
-    font-size: 10px; letter-spacing: 1px; color: var(--muted);
-    text-transform: uppercase; padding: 8px; text-align: center;
-    border-bottom: 1px solid var(--border); background: var(--surface2);
-  }
-  .gap-table td {
-    padding: 8px; text-align: center; font-family: 'DM Mono', monospace;
-    border-bottom: 1px solid var(--border);
-  }
-  .gap-table tr:last-child td { border-bottom: none; }
-  .floor-col { color: var(--accent); font-weight: 700; }
-  .pill {
-    display: inline-block; border-radius: 5px; padding: 2px 8px;
-    font-size: 12px; font-family: 'DM Mono', monospace; font-weight: 700;
-  }
-  .pill.over   { background: rgba(220,38,38,0.1); color: var(--warn); }
-  .pill.under  { background: rgba(37,99,235,0.1); color: var(--accent); }
-  .pill.exact  { background: rgba(22,163,74,0.1); color: var(--good); }
+  /* 調派卡 */
+  .dispatch-list{display:flex;flex-direction:column;gap:8px;}
+  .dispatch-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+  .dispatch-card.has-move{border-color:rgba(37,99,235,.3);}
+  .dc-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);}
+  .dc-floor{font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--accent);min-width:42px;}
+  .dc-info{flex:1;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+  .dc-tag{font-size:10px;font-weight:700;border-radius:4px;padding:2px 8px;}
+  .dc-tag.move{background:rgba(37,99,235,.1);color:var(--accent);}
+  .dc-tag.stay{background:rgba(22,163,74,.08);color:var(--good);}
+  .dc-body{padding:10px 14px;display:flex;flex-direction:column;gap:6px;}
+  .dc-row{display:flex;align-items:center;gap:8px;}
+  .dc-chips{display:flex;gap:4px;flex:1;flex-wrap:wrap;}
+  .arrow{color:var(--muted);font-size:14px;flex-shrink:0;}
+  .dest-floor{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);}
+  .dest-here{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);}
 
-  /* Step3 樓層調派 */
-  .pair-list { display: flex; flex-direction: column; gap: 8px; }
-  .pair-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-  .pair-card.split-card { border-color: rgba(37,99,235,0.25); }
+  .chip{font-size:12px;font-family:'DM Mono',monospace;font-weight:700;border-radius:5px;padding:3px 8px;}
+  .chip.co{background:rgba(220,38,38,.08);color:var(--warn);}
+  .chip.st{background:rgba(22,163,74,.08);color:var(--good);}
+  .chip.grey{background:var(--surface2);color:var(--muted);font-weight:400;}
 
-  .floor-dispatch-header {
-    display: flex; align-items: center; gap: 8px;
-    padding: 10px 14px; background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-  }
-  .floor-dispatch-num {
-    font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 700;
-    color: var(--accent); min-width: 40px;
-  }
-  .floor-dispatch-total {
-    flex: 1; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted);
-  }
-  .floor-dispatch-tag {
-    font-size: 10px; font-weight: 700; border-radius: 4px; padding: 2px 8px;
-    letter-spacing: 0.5px;
-  }
-  .floor-dispatch-tag.single { background: rgba(22,163,74,0.1); color: var(--good); }
-  .floor-dispatch-tag.split  { background: rgba(37,99,235,0.1); color: var(--accent); }
+  /* 人員卡 */
+  .person-list{display:flex;flex-direction:column;gap:8px;}
+  .person-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+  .person-card.ok{border-color:rgba(22,163,74,.4);}
+  .person-card.warn{border-color:rgba(220,38,38,.4);}
+  .pc-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);}
+  .pc-badge{background:var(--accent);color:#fff;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;border-radius:5px;padding:2px 10px;}
+  .pc-floors{flex:1;font-size:13px;font-weight:700;font-family:'DM Mono',monospace;}
+  .pc-total{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;}
+  .pc-body{padding:10px 14px;display:flex;flex-direction:column;gap:6px;}
+  .pc-row{display:flex;align-items:center;gap:6px;}
+  .pc-floor-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);min-width:30px;}
+  .pc-summary{display:flex;gap:8px;margin-top:4px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);flex-wrap:wrap;}
 
-  .floor-dispatch-body { padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
-
-  .dispatch-row {
-    display: flex; align-items: center; gap: 8px;
-  }
-  .dispatch-chips { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
-  .dispatch-arrow { color: var(--muted); font-size: 14px; flex-shrink: 0; }
-
-  .dchip {
-    font-size: 12px; font-family: 'DM Mono', monospace; font-weight: 700;
-    border-radius: 5px; padding: 3px 8px;
-  }
-  .dchip.co    { background: rgba(220,38,38,0.08); color: var(--warn); }
-  .dchip.st    { background: rgba(22,163,74,0.08); color: var(--good); }
-  .dchip.total { background: var(--surface2); color: var(--muted); font-weight: 400; }
-
-  .floor-dest {
-    font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 700;
-    color: var(--accent); white-space: nowrap;
-  }
-  .stay-dest { color: var(--muted); font-weight: 400; }
-  .stay-row { opacity: 0.6; }
-
-  .person-badge {
-    font-size: 11px; font-family: 'DM Mono', monospace; font-weight: 700;
-    background: var(--accent); color: #fff;
-    border-radius: 4px; padding: 2px 8px; white-space: nowrap;
-  }
-
-  /* 人員彙整 */
-  .person-summary-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); overflow: hidden; margin-top: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-  .person-summary-title {
-    padding: 10px 14px; background: var(--accent); color: #fff;
-    font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
-  }
-  .person-summary-row {
-    display: flex; align-items: center; gap: 8px; padding: 9px 14px;
-    border-bottom: 1px solid var(--border); flex-wrap: wrap;
-  }
-  .person-summary-row:last-child { border-bottom: none; }
-  .person-summary-floors {
-    flex: 1; font-size: 13px; font-weight: 700; color: var(--text);
-    font-family: 'DM Mono', monospace;
-  }
-  .person-summary-total {
-    display: flex; align-items: center; gap: 4px;
-    font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace;
-  }
-
-  /* Step4 最終結果 */
-  .final-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); margin-bottom: 8px; overflow: hidden;
-  }
-  .final-card.ok   { border-color: var(--good); }
-  .final-card.warn { border-color: var(--warn); }
-  .final-header {
-    display: flex; align-items: center; gap: 8px;
-    padding: 10px 14px; border-bottom: 1px solid var(--border);
-    background: var(--surface2);
-  }
-  .ftag {
-    font-family: 'DM Mono', monospace; font-size: 12px; color: #fff;
-    background: var(--accent);
-    border-radius: 5px; padding: 2px 10px;
-  }
-  .ffloors { flex: 1; font-size: 13px; font-weight: 700; }
-  .ftotal  { font-family: 'DM Mono', monospace; font-size: 13px; }
-  .final-body { padding: 10px 14px; }
-  .final-row  { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-  .flabel { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); min-width: 32px; }
-  .chip {
-    font-size: 11px; font-family: 'DM Mono', monospace;
-    border-radius: 5px; padding: 3px 8px; border: 1px solid var(--border);
-  }
-  .chip.co { background: rgba(220,38,38,0.08); border-color: rgba(220,38,38,0.3); color: var(--warn); }
-  .chip.st { background: rgba(22,163,74,0.08); border-color: rgba(22,163,74,0.3); color: var(--good); }
-  .final-summary {
-    display: flex; gap: 10px; margin-top: 6px; padding-top: 6px;
-    border-top: 1px solid var(--border);
-    font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); flex-wrap: wrap;
-  }
-
-  .warn-box {
-    background: rgba(220,38,38,0.06); border: 1px solid rgba(220,38,38,0.3);
-    border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px;
-    font-size: 13px; color: var(--warn); line-height: 1.6;
-  }
-  .ok-box {
-    background: rgba(22,163,74,0.08); border: 1px solid rgba(22,163,74,0.3);
-    border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px;
-    font-size: 13px; color: var(--good);
-  }
+  .warn-box{background:rgba(220,38,38,.05);border:1px solid rgba(220,38,38,.25);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;font-size:13px;color:var(--warn);line-height:1.7;}
+  .ok-box{background:rgba(22,163,74,.06);border:1px solid rgba(22,163,74,.25);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;font-size:13px;color:var(--good);}
 </style>
 </head>
 <body>
 
 <header>
   <h1>🏨 房務排班計算器</h1>
-  <p>v4.1 · 總人力平均分配 ＋ 擋房</p>
+  <p>v6 · 自動 ＋ 半手動模式</p>
 </header>
 
-<!-- 人力輸入 -->
+<!-- 頂部設定 -->
 <div class="section" style="margin-top:14px;">
-  <div class="section-title">今日人力</div>
-  <div class="staff-row">
-    <div class="staff-box">
-      <label>今日出勤人數</label>
-      <select id="staff-count" onchange="updateSummary()">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12" selected>12</option>
-        <option value="13">13</option>
-        <option value="14">14</option>
-        <option value="15">15</option>
-        <option value="16">16</option>
-        <option value="17">17</option>
-        <option value="18">18</option>
-        <option value="19">19</option>
-        <option value="20">20</option>
-        <option value="21">21</option>
-        <option value="22">22</option>
-        <option value="23">23</option>
-        <option value="24">24</option>
-        <option value="25">25</option>
-        <option value="26">26</option>
-        <option value="27">27</option>
-        <option value="28">28</option>
-        <option value="29">29</option>
-        <option value="30">30</option>
-      </select>
+  <div class="section-title">今日設定</div>
+  <div class="top-grid">
+    <div class="top-card">
+      <label>出勤人數</label>
+      <select id="staff-count" onchange="updateSummary()"></select>
     </div>
-    <div class="staff-box">
-      <label>擋房數</label>
-      <select id="block-count" onchange="updateSummary()">
-        <option value="0" selected>0</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12">12</option>
-        <option value="13">13</option>
-        <option value="14">14</option>
-        <option value="15">15</option>
-        <option value="16">16</option>
-        <option value="17">17</option>
-        <option value="18">18</option>
-        <option value="19">19</option>
-        <option value="20">20</option>
-        <option value="21">21</option>
-        <option value="22">22</option>
-        <option value="23">23</option>
-        <option value="24">24</option>
-        <option value="25">25</option>
-        <option value="26">26</option>
-        <option value="27">27</option>
-        <option value="28">28</option>
-        <option value="29">29</option>
-        <option value="30">30</option>
-      </select>
+    <div class="top-card">
+      <label>擋房數（只擋退房）</label>
+      <select id="block-count" onchange="updateSummary()"></select>
     </div>
   </div>
-  <div class="staff-result" id="staff-result">－</div>
+  <div class="summary-bar" id="summary-bar">請輸入資料</div>
 </div>
 
-<!-- 樓層資訊 -->
+<!-- 模式切換 -->
 <div class="section" style="margin-top:12px;">
-  <div class="section-title">各樓房間數</div>
+  <div class="section-title">分配模式</div>
+  <div class="mode-row">
+    <button class="mode-btn active" id="btn-auto" onclick="setMode('auto')">
+      自動分配
+      <span class="mode-sub">系統自動計算退房均分</span>
+    </button>
+    <button class="mode-btn" id="btn-manual" onclick="setMode('manual')">
+      半手動
+      <span class="mode-sub">自訂每層樓主留幾間退房</span>
+    </button>
+  </div>
+  <div class="mode-hint" id="mode-hint">
+    系統依退房均分目標自動分配，退房塞滿時讓樓主直接吃掉超額，續掃補缺口。
+  </div>
+</div>
+
+<!-- 各樓資訊 -->
+<div class="section" style="margin-top:4px;">
+  <div class="section-title">各樓資訊</div>
   <div id="floor-list"></div>
   <button class="add-floor-btn" onclick="addFloor()">＋ 新增樓層</button>
 </div>
@@ -410,572 +187,426 @@
 <div id="results" style="display:none;">
   <div class="divider"></div>
 
-  <!-- STEP 1 總覽 -->
   <div class="section" style="margin-top:20px;">
     <div class="step-header">
       <div class="step-num">1</div>
-      <div>
-        <div class="step-label">今日總覽</div>
-        <div class="step-sub">總間數 ÷ 人力 = 每人目標</div>
-      </div>
+      <div><div class="step-label">今日總覽</div><div class="step-sub">退房均分目標計算</div></div>
     </div>
-    <div class="overview-grid" id="overview-grid"></div>
+    <div class="ov-grid" id="ov-grid"></div>
   </div>
 
-  <!-- STEP 2 各樓缺口 -->
   <div class="section" style="margin-top:20px;">
     <div class="step-header">
       <div class="step-num">2</div>
-      <div>
-        <div class="step-label">各樓間數 vs 每人目標</div>
-        <div class="step-sub">看哪些樓需要第二個人進來協助</div>
-      </div>
+      <div><div class="step-label">各樓退房分配</div><div class="step-sub">每層留幾間、撥出幾間</div></div>
     </div>
-    <div class="table-wrap">
-      <table class="gap-table" id="gap-table"></table>
-    </div>
+    <div class="table-wrap"><table id="gap-table"></table></div>
   </div>
 
-  <!-- STEP 3 配對 -->
   <div class="section" style="margin-top:20px;">
     <div class="step-header">
       <div class="step-num">3</div>
-      <div>
-        <div class="step-label">調派過程</div>
-        <div class="step-sub">誰跑哪兩層、帶走幾間退/續</div>
-      </div>
+      <div><div class="step-label">各樓調派明細</div><div class="step-sub">撥出去的退房去了哪層</div></div>
     </div>
-    <div id="warn-area-3"></div>
-    <div class="pair-list" id="pair-list"></div>
+    <div id="warn-3"></div>
+    <div class="dispatch-list" id="dispatch-list"></div>
   </div>
 
-  <!-- STEP 4 最終 -->
   <div class="section" style="margin-top:20px;">
     <div class="step-header">
       <div class="step-num">4</div>
-      <div>
-        <div class="step-label">最終分配結果</div>
-        <div class="step-sub">每人實拿 ＆ 退房均分狀況</div>
-      </div>
+      <div><div class="step-label">人員分配結果</div><div class="step-sub">每人跑哪幾層、實拿達標狀況</div></div>
     </div>
-    <div id="warn-area-4"></div>
-    <div id="final-list"></div>
+    <div id="warn-4"></div>
+    <div class="person-list" id="person-list"></div>
   </div>
 </div>
 
 <script>
-function makeOpts(min, max, selected) {
-  let html = '';
-  for (let i = min; i <= max; i++) {
-    html += `<option value="${i}"${i === selected ? ' selected' : ''}>${i}</option>`;
-  }
-  return html;
+// ── 工具 ──────────────────────────────────────
+function makeOpts(min, max, sel) {
+  let h = '';
+  for (let i = min; i <= max; i++)
+    h += `<option value="${i}"${i===sel?' selected':''}>${i}</option>`;
+  return h;
 }
+function getVal(id) { return parseInt(document.getElementById(id).value)||0; }
 
+// ── 狀態 ──────────────────────────────────────
 let floors = [];
+let currentMode = 'auto';
 
-const DEFAULT_FLOORS = [
-  { floor:3,  checkout:4, stay:6  },
-  { floor:4,  checkout:6, stay:7  },
-  { floor:5,  checkout:2, stay:12 },
-  { floor:6,  checkout:3, stay:11 },
-  { floor:7,  checkout:8, stay:6  },
-  { floor:8,  checkout:3, stay:13 },
-  { floor:9,  checkout:8, stay:9  },
-  { floor:10, checkout:1, stay:11 },
-  { floor:11, checkout:5, stay:14 },
-  { floor:12, checkout:8, stay:4  },
-  { floor:13, checkout:4, stay:11 },
-  { floor:14, checkout:2, stay:11 },
+const DEFAULT = [
+  {floor:3, co:4, st:6,  tgt:11},
+  {floor:4, co:6, st:7,  tgt:12},
+  {floor:5, co:2, st:12, tgt:13},
+  {floor:6, co:3, st:11, tgt:13},
+  {floor:7, co:8, st:6,  tgt:13},
+  {floor:8, co:3, st:13, tgt:10},
+  {floor:9, co:8, st:9,  tgt:13},
+  {floor:10,co:1, st:11, tgt:14},
+  {floor:11,co:5, st:14, tgt:13},
+  {floor:12,co:8, st:4,  tgt:12},
+  {floor:13,co:4, st:11, tgt:12},
+  {floor:14,co:2, st:11, tgt:12},
 ];
 
-function getStaff() { return parseInt(document.getElementById('staff-count').value) || 0; }
-function getBlock() { return parseInt(document.getElementById('block-count').value) || 0; }
-
-function getTotalRooms() {
-  return floors.reduce((s, f) => {
-    const el = document.getElementById('floor-' + f.id);
-    if (!el) return s;
-    const co = parseInt(el.querySelector('.inp-co').value) || 0;
-    const st = parseInt(el.querySelector('.inp-st').value) || 0;
-    return s + co + st;
-  }, 0);
+// ── 模式切換 ──────────────────────────────────
+function setMode(m) {
+  currentMode = m;
+  document.getElementById('btn-auto').classList.toggle('active', m==='auto');
+  document.getElementById('btn-manual').classList.toggle('active', m==='manual');
+  document.getElementById('mode-hint').textContent = m==='auto'
+    ? '系統依退房均分目標自動分配，退房塞滿時讓樓主直接吃掉超額，續掃補缺口。'
+    : '半手動模式：系統先顯示均分建議，你可以在「樓主留房」欄位自訂每層樓主留幾間退房，再按計算。';
+  renderFloors();
 }
 
+// ── 摘要列 ──────────────────────────────────
 function updateSummary() {
-  const staff = getStaff();
-  const totalAll = getTotalRooms();
-  const block = getBlock();
-  const total = Math.max(0, totalAll - block);
-  const perPerson = staff > 0 ? (total / staff) : 0;
-  const lo = Math.floor(perPerson), hi = Math.ceil(perPerson);
-  const el = document.getElementById('staff-result');
-  if (!staff || !totalAll) { el.textContent = '請輸入人數和樓層資料'; return; }
-  const blockNote = block > 0 ? `，擋房 <span>${block}</span>，實際分配 <span>${total}</span>` : '';
-  el.innerHTML = `總間數 <span>${totalAll}</span>${blockNote} ÷ 人力 <span>${staff}</span> = 每人目標 <span class="big">${lo === hi ? lo : lo + '～' + hi}</span> 間`;
+  const staff = getVal('staff-count');
+  const block = getVal('block-count');
+  const totalCo = floors.reduce((s,f)=>s+(f.co||0),0);
+  const netCo = Math.max(0, totalCo - block);
+  const avgCo = staff>0 ? netCo/staff : 0;
+  const lo=Math.floor(avgCo), hi=Math.ceil(avgCo);
+  const bar = document.getElementById('summary-bar');
+  if(!staff||!totalCo){bar.textContent='請輸入資料';return;}
+  bar.innerHTML=`退房 <span>${totalCo}</span> − 擋房 <span>${block}</span> = 有效退房 <span>${netCo}</span> &nbsp;｜&nbsp; 均分目標 <span class="big">${lo===hi?lo:lo+'～'+hi}</span> 間/人`;
 }
 
-function addFloor(data) {
-  floors.push({ id: Date.now() + Math.random(), ...(data || { floor: '', checkout: '', stay: '' }) });
-  renderFloors();
-  updateSummary();
+// ── 樓層卡片 ──────────────────────────────────
+function addFloor(d) {
+  floors.push({id:Date.now()+Math.random(), ...(d||{floor:1,co:0,st:0,tgt:0,keep:null})});
+  renderFloors(); updateSummary();
 }
-
 function removeFloor(id) {
-  floors = floors.filter(f => f.id != id);
-  renderFloors();
-  updateSummary();
+  floors=floors.filter(f=>f.id!=id);
+  renderFloors(); updateSummary();
 }
 
 function renderFloors() {
-  document.getElementById('floor-list').innerHTML = floors.map(f => {
-    const total = (f.checkout || 0) + (f.stay || 0);
+  const isManual = currentMode==='manual';
+  const staff=getVal('staff-count'), block=getVal('block-count');
+  const totalCo=floors.reduce((s,f)=>s+(f.co||0),0);
+  const netCo=Math.max(0,totalCo-block);
+  const avgCoLo=Math.floor(netCo/(staff||1)), avgCoHi=Math.ceil(netCo/(staff||1));
+
+  document.getElementById('floor-list').innerHTML = floors.map((f,idx)=>{
+    const total=(f.co||0)+(f.st||0);
+    // 半手動模式下，keep 預設為均分建議值
+    const suggested = Math.min(f.co||0, idx<((netCo-(avgCoLo*(staff||1)))+(staff||1)) ? avgCoHi : avgCoLo);
+    const keepVal = (f.keep!=null) ? f.keep : suggested;
     return `
-    <div class="floor-card" id="floor-${f.id}">
+    <div class="floor-card" id="fc-${f.id}">
       <div class="floor-header">
-        <div class="floor-badge">${f.floor || '?'}<span style="font-size:13px;font-weight:400;color:var(--muted)">F</span></div>
-        <div class="floor-summary">
-          <span style="color:var(--warn)">退${f.checkout||0}</span>
+        <div class="floor-num">${f.floor||'?'}<span style="font-size:13px;font-weight:400;color:var(--muted)">F</span></div>
+        <div class="floor-meta">
+          <span style="color:var(--warn)">退${f.co||0}</span>
           <span style="margin:0 4px;color:var(--border)">|</span>
-          <span style="color:var(--good)">續${f.stay||0}</span>
+          <span style="color:var(--good)">續${f.st||0}</span>
+          <span style="margin:0 4px;color:var(--border)">|</span>
+          實拿${f.tgt||0}
         </div>
-        <div class="floor-total">${total ? total+'間' : '－'}</div>
+        ${total?`<div class="floor-total-badge">${total}間</div>`:''}
         <button class="remove-btn" onclick="removeFloor('${f.id}')">✕</button>
       </div>
-      <div class="floor-inputs">
-        <div class="input-group floor-col">
+      <div class="floor-inputs${isManual?' manual-mode':''}">
+        <div class="inp-group g-floor">
           <label>樓層</label>
-          <select class="inp-floor" onchange="syncFloor('${f.id}')">
-            ${makeOpts(1,30,f.floor||1)}
-          </select>
+          <select onchange="syncFloor('${f.id}','floor',this.value)">${makeOpts(1,30,f.floor||1)}</select>
         </div>
-        <div class="input-group co-col">
+        <div class="inp-group g-co">
           <label>🔴 退房</label>
-          <select class="inp-co" onchange="syncFloor('${f.id}')">
-            ${makeOpts(0,30,f.checkout||0)}
-          </select>
+          <select onchange="syncFloor('${f.id}','co',this.value)">${makeOpts(0,30,f.co||0)}</select>
         </div>
-        <div class="input-group st-col">
+        <div class="inp-group g-st">
           <label>🟢 續掃</label>
-          <select class="inp-st" onchange="syncFloor('${f.id}')">
-            ${makeOpts(0,30,f.stay||0)}
-          </select>
+          <select onchange="syncFloor('${f.id}','st',this.value)">${makeOpts(0,30,f.st||0)}</select>
         </div>
+        <div class="inp-group g-tgt">
+          <label>實拿目標</label>
+          <select onchange="syncFloor('${f.id}','tgt',this.value)">${makeOpts(0,30,f.tgt||0)}</select>
+        </div>
+        ${isManual?`
+        <div class="inp-group g-keep">
+          <label>🟣 樓主留退</label>
+          <select class="keep-select" onchange="syncFloor('${f.id}','keep',this.value)">${makeOpts(0,f.co||0,keepVal)}</select>
+        </div>`:''}
       </div>
     </div>`;
   }).join('');
 }
 
-function syncFloor(id) {
-  const el = document.getElementById('floor-' + id);
-  const f = floors.find(x => x.id == id);
-  if (!f || !el) return;
-  f.floor    = parseInt(el.querySelector('.inp-floor').value) || 0;
-  f.checkout = parseInt(el.querySelector('.inp-co').value) || 0;
-  f.stay     = parseInt(el.querySelector('.inp-st').value) || 0;
-  const total = f.checkout + f.stay;
-  el.querySelector('.floor-badge').innerHTML = `${f.floor||'?'}<span style="font-size:13px;font-weight:400;color:var(--muted)">F</span>`;
-  el.querySelector('.floor-summary').innerHTML = `<span style="color:var(--warn)">退${f.checkout}</span><span style="margin:0 4px;color:var(--border)">|</span><span style="color:var(--good)">續${f.stay}</span>`;
-  el.querySelector('.floor-total').textContent = total ? total + '間' : '';
+function syncFloor(id, field, val) {
+  const f=floors.find(x=>x.id==id);
+  if(!f)return;
+  f[field]=parseInt(val)||0;
+  // keep 上限不能超過 co，co 改變時同步更新 keep 選單
+  if(field==='co') {
+    if(f.keep!=null && f.keep>f.co) f.keep=f.co;
+    // 重新生成 keep 選單的 options
+    const el=document.getElementById('fc-'+id);
+    const keepSel=el && el.querySelector('.keep-select');
+    if(keepSel) {
+      const staff=getVal('staff-count'), block=getVal('block-count');
+      const totalCo=floors.reduce((s,x)=>s+(x.co||0),0);
+      const netCo=Math.max(0,totalCo-block);
+      const avgCoLo=Math.floor(netCo/(staff||1)), avgCoHi=Math.ceil(netCo/(staff||1));
+      const idx=floors.findIndex(x=>x.id==id);
+      const hiCount=netCo-(avgCoLo*(staff||1));
+      const suggested=Math.min(f.co||0, idx<hiCount ? avgCoHi : avgCoLo);
+      const keepVal=(f.keep!=null)?Math.min(f.keep,f.co||0):suggested;
+      keepSel.innerHTML=makeOpts(0,f.co||0,keepVal);
+      f.keep=keepVal;
+    }
+  }
+  const el=document.getElementById('fc-'+id);
+  const total=(f.co||0)+(f.st||0);
+  el.querySelector('.floor-num').innerHTML=`${f.floor||'?'}<span style="font-size:13px;font-weight:400;color:var(--muted)">F</span>`;
+  el.querySelector('.floor-meta').innerHTML=
+    `<span style="color:var(--warn)">退${f.co||0}</span>`+
+    `<span style="margin:0 4px;color:var(--border)">|</span>`+
+    `<span style="color:var(--good)">續${f.st||0}</span>`+
+    `<span style="margin:0 4px;color:var(--border)">|</span>實拿${f.tgt||0}`;
+  const badge=el.querySelector('.floor-total-badge');
+  if(badge) badge.textContent=total?total+'間':'';
   updateSummary();
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════
 //  核心分配邏輯
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function calculate() {
-  const raw = floors.map(f => {
-    const el = document.getElementById('floor-' + f.id);
-    if (!el) return null;
-    return {
-      floor:    parseInt(el.querySelector('.inp-floor').value) || 0,
-      checkout: parseInt(el.querySelector('.inp-co').value) || 0,
-      stay:     parseInt(el.querySelector('.inp-st').value) || 0,
-    };
-  }).filter(d => d && d.floor).sort((a, b) => a.floor - b.floor);
+  const raw=floors.map(f=>({
+    floor:f.floor||0, co:f.co||0, st:f.st||0, tgt:f.tgt||0,
+    total:(f.co||0)+(f.st||0), keepOverride:f.keep,
+  })).filter(d=>d.floor&&d.tgt).sort((a,b)=>a.floor-b.floor);
 
-  if (raw.length < 1) { alert('請至少輸入 1 個樓層'); return; }
+  if(!raw.length){alert('請至少輸入 1 個有效樓層');return;}
+  const staff=getVal('staff-count');
+  if(!staff){alert('請輸入今日人數');return;}
+  const block=getVal('block-count');
 
-  const staff = getStaff();
-  if (!staff) { alert('請輸入今日人數'); return; }
+  const totalCo=raw.reduce((s,d)=>s+d.co,0);
+  const totalSt=raw.reduce((s,d)=>s+d.st,0);
+  const netCo=Math.max(0,totalCo-block);
+  const avgCo=netCo/staff;
+  const avgCoLo=Math.floor(avgCo), avgCoHi=Math.ceil(avgCo);
+  const hiCount=netCo-avgCoLo*staff;
 
-  raw.forEach(d => d.total = d.checkout + d.stay);
-
-  const totalRoomsAll = raw.reduce((s, d) => s + d.total, 0);
-  const blockRooms    = getBlock();
-  const totalRooms    = Math.max(0, totalRoomsAll - blockRooms);
-  const totalCheckout = raw.reduce((s, d) => s + d.checkout, 0);
-  const perPerson     = totalRooms / staff;
-  const lo = Math.floor(perPerson), hi = Math.ceil(perPerson);
-
-  // ── 分配邏輯 ──────────────────────────────────
-  // 每個人分到一個「主樓段」，可能跨兩層
-  // 策略：把樓層排成一排，用滑動窗口分給每個人
-  // 每人目標 = lo 或 hi 間（讓總數剛好）
-  // hiCount = totalRooms - lo * staff（需要拿 hi 的人數）
-  const hiCount = totalRooms - lo * staff;
-  const loCount = staff - hiCount;
-
-  // 建立每人目標序列（先 hi 後 lo，或混合，這裡讓退房多的人拿 hi）
-  // 先計算配對，再調整退房
-
-  // 把樓層池拆成一間一間排列，帶著 floor/type 資訊
-  // 然後依序切給每個人
-  let roomPool = [];
-  raw.forEach(d => {
-    for (let i = 0; i < d.checkout; i++) roomPool.push({ floor: d.floor, type: 'co' });
-    for (let i = 0; i < d.stay;     i++) roomPool.push({ floor: d.floor, type: 'st' });
-  });
-
-  // 分配：每人拿連續的 lo 或 hi 間，盡量退房均分
-  // 退房均分：每人目標退房 = totalCheckout / staff
-  // 採用方式：先按樓層順序切，再檢查每層人數不超過兩人、每人樓層數不超過兩層
-
-  // ── 新分配邏輯：退房優先均分 ──────────────────────────
-  // 策略：
-  // 1. 先把退房間數從高到低排列，分兩輪：
-  //    第一輪：把退房塞給退房不足的人（每人退房目標 = avgCo）
-  //    第二輪：剩下的續掃按一般順序補滿每人目標
-  // 2. 每人最多兩層、每層最多兩人
-
-  const avgCoTarget = totalCheckout / staff; // 每人退房均分目標（可為小數）
-  const avgCoLo = Math.floor(avgCoTarget);
-  const avgCoHi = Math.ceil(avgCoTarget);
-
-  // 建立人員列表，目標間數：前 hiCount 人拿 hi，其餘拿 lo
-  const persons = [];
-  for (let i = 0; i < staff; i++) {
-    persons.push({
-      id: i + 1,
-      target: i < hiCount ? hi : lo,
-      coTarget: i < (totalCheckout - avgCoLo * staff) ? avgCoHi : avgCoLo,
-      rooms: [],
-      floors: new Set(),
-      assignedCo: 0,
-      assignedTotal: 0,
-    });
-  }
-
-  // 輔助：找能接收這層房間的人（還有空間、還能加樓層）
-  function findCandidates(floorNum, needCo) {
-    return persons.filter(p => {
-      if (p.assignedTotal >= p.target) return false;
-      if (p.floors.size >= 2 && !p.floors.has(floorNum)) return false;
-      // 這層已有兩個人了不能再加
-      const floorCount = persons.filter(x => x.floors.has(floorNum)).length;
-      if (floorCount >= 2 && !p.floors.has(floorNum)) return false;
-      return true;
-    });
-  }
-
-  // 第一輪：分配退房，優先給退房還不足的人
-  // 把退房多的樓先處理
-  const rawSortedByCo = [...raw].sort((a, b) => b.checkout - a.checkout);
-  const floorCoPool = {};
-  const floorStPool = {};
-  raw.forEach(d => { floorCoPool[d.floor] = d.checkout; floorStPool[d.floor] = d.stay; });
-
-  for (const d of rawSortedByCo) {
-    if (d.checkout === 0) continue;
-    let coRemain = d.checkout;
-
-    // 找退房還不夠的人，優先分給他們
-    const needyCo = persons
-      .filter(p => p.assignedCo < p.coTarget && p.assignedTotal < p.target)
-      .filter(p => {
-        const floorCount = persons.filter(x => x.floors.has(d.floor)).length;
-        return (p.floors.size < 2 || p.floors.has(d.floor)) && (floorCount < 2 || p.floors.has(d.floor));
-      })
-      .sort((a, b) => (a.assignedCo - a.coTarget) - (b.assignedCo - b.coTarget)); // 最缺的優先
-
-    for (const p of needyCo) {
-      if (coRemain <= 0) break;
-      const coNeed = Math.min(p.coTarget - p.assignedCo, p.target - p.assignedTotal, coRemain);
-      if (coNeed <= 0) continue;
-
-      const entry = p.rooms.find(r => r.floor === d.floor);
-      if (entry) { entry.co += coNeed; entry.count += coNeed; }
-      else { p.rooms.push({ floor: d.floor, count: coNeed, co: coNeed, st: 0 }); p.floors.add(d.floor); }
-
-      p.assignedCo += coNeed;
-      p.assignedTotal += coNeed;
-      floorCoPool[d.floor] -= coNeed;
-      coRemain -= coNeed;
-    }
-  }
-
-  // 第二輪：把剩下的退房和全部續掃，按一般順序補滿
-  // 把剩餘房間（退房剩餘 + 所有續掃）排成池，按樓層順序
-  const remainPool = [];
-  raw.forEach(d => {
-    for (let i = 0; i < floorCoPool[d.floor]; i++) remainPool.push({ floor: d.floor, type: 'co' });
-    for (let i = 0; i < floorStPool[d.floor]; i++) remainPool.push({ floor: d.floor, type: 'st' });
-  });
-
-  for (const room of remainPool) {
-    // 找還有空間的人
-    const candidates = findCandidates(room.floor, room.type === 'co');
-    if (candidates.length === 0) continue;
-
-    // 優先給還沒滿的人，退房優先給退房還不夠的
-    candidates.sort((a, b) => {
-      if (room.type === 'co') return (a.assignedCo - a.coTarget) - (b.assignedCo - b.coTarget);
-      return a.assignedTotal - b.assignedTotal;
-    });
-
-    const p = candidates[0];
-    const entry = p.rooms.find(r => r.floor === room.floor);
-    if (entry) {
-      entry.count += 1;
-      if (room.type === 'co') entry.co += 1; else entry.st += 1;
+  // ── 決定每層樓主留的退房數和續掃數 ────────────
+  const floorState=raw.map((d,idx)=>{
+    // 退房：半手動用自訂值，自動用均分目標
+    let keepCo;
+    if(currentMode==='manual' && d.keepOverride!=null) {
+      keepCo=Math.min(d.keepOverride, d.co);
     } else {
-      p.rooms.push({ floor: room.floor, count: 1, co: room.type === 'co' ? 1 : 0, st: room.type === 'st' ? 1 : 0 });
-      p.floors.add(room.floor);
+      const coTarget=idx<hiCount ? avgCoHi : avgCoLo;
+      keepCo=Math.min(d.co, coTarget);
     }
-    if (room.type === 'co') p.assignedCo += 1;
-    p.assignedTotal += 1;
+    const giveCo=d.co-keepCo;
+    // 續掃：樓主最多留 tgt-keepCo 間，多的撥出
+    const keepSt=Math.min(d.st, Math.max(0, d.tgt-keepCo));
+    const giveSt=d.st-keepSt;
+    const deficit=d.tgt-keepCo-keepSt;
+    return {...d, keepCo, giveCo, keepSt, giveSt, deficit, personId:idx+1};
+  });
+
+  // ── 配對：有缺口的人補退房或續掃 ──────────────
+  const givePoolCo=floorState.filter(f=>f.giveCo>0)
+    .map(f=>({fromFloor:f.floor, avail:f.giveCo}));
+  const givePoolSt={};
+  floorState.forEach(f=>{ givePoolSt[f.floor]=f.giveSt; });
+
+  const needPool=floorState.filter(f=>f.deficit>0)
+    .map(f=>({floor:f.floor, need:f.deficit}))
+    .sort((a,b)=>b.need-a.need);
+
+  const crossings={};
+  const floorVisitors={};
+  raw.forEach(d=>floorVisitors[d.floor]=0);
+
+  for(const nd of needPool){
+    let remaining=nd.need;
+    const f=floorState.find(f=>f.floor===nd.floor);
+    const pid=f.personId;
+    if(!crossings[pid]) crossings[pid]=[];
+
+    // 判斷這個人的退房是否已達均分目標
+    const coTarget=floorState.indexOf(f)<hiCount ? avgCoHi : avgCoLo;
+    const coNeeded=Math.max(0, coTarget - f.keepCo); // 還差幾間退房才到均分目標
+
+    // 第一輪：退房還不夠均分目標 → 優先補退房
+    if(coNeeded>0){
+      for(const gv of givePoolCo){
+        if(remaining<=0) break;
+        if(gv.avail<=0) continue;
+        if(floorVisitors[gv.fromFloor]>=1) continue;
+        const take=Math.min(remaining, coNeeded, gv.avail);
+        const ex=crossings[pid].find(c=>c.toFloor===gv.fromFloor);
+        if(ex){ex.co+=take;}
+        else{crossings[pid].push({toFloor:gv.fromFloor,co:take,st:0});floorVisitors[gv.fromFloor]++;}
+        gv.avail-=take;
+        remaining-=take;
+      }
+    }
+    // 退房已達標 → 直接跳過，不再拿退房
+
+    // 第二輪：補續掃（無人數限制）
+    if(remaining>0){
+      const stAvail=Object.entries(givePoolSt)
+        .filter(([fl,av])=>parseInt(fl)!==nd.floor && av>0)
+        .map(([fl,av])=>({floor:parseInt(fl), avail:av}))
+        .sort((a,b)=>b.avail-a.avail);
+      for(const ss of stAvail){
+        if(remaining<=0) break;
+        const take=Math.min(remaining, ss.avail);
+        const ex=crossings[pid].find(c=>c.toFloor===ss.floor);
+        if(ex){ex.st+=take;}
+        else{crossings[pid].push({toFloor:ss.floor,co:0,st:take});}
+        givePoolSt[ss.floor]-=take;
+        remaining-=take;
+      }
+    }
   }
 
-  // 計算每人總計
-  persons.forEach(p => {
-    p.totalCo = p.rooms.reduce((s, r) => s + r.co, 0);
-    p.totalSt = p.rooms.reduce((s, r) => s + r.st, 0);
-    p.totalRooms = p.totalCo + p.totalSt;
-    p.floorList = [...p.floors].sort((a, b) => a - b);
-  });
-
-  // ── 建立配對資訊（哪個人從哪層跨去哪層）──
-  // 找出每個樓層的負責人（一或兩個）
-  const floorPersons = {};
-  raw.forEach(d => floorPersons[d.floor] = []);
-  persons.forEach(p => {
-    p.floorList.forEach(f => floorPersons[f].push(p.id));
-  });
-
-  // 配對：有兩個樓層的人，from=主樓(間數多那層) to=副樓
-  const pairs = persons.filter(p => p.floorList.length === 2).map(p => {
-    const f1 = p.floorList[0], f2 = p.floorList[1];
-    const r1 = p.rooms.find(r => r.floor === f1);
-    const r2 = p.rooms.find(r => r.floor === f2);
-    const mainFloor = r1.count >= r2.count ? f1 : f2;
-    const crossFloor = mainFloor === f1 ? f2 : f1;
-    const crossRoom = p.rooms.find(r => r.floor === crossFloor);
+  // ── 計算每人最終 ─────────────────────────────
+  const persons=floorState.map(f=>{
+    const cross=crossings[f.personId]||[];
+    const crossCo=cross.reduce((s,c)=>s+c.co,0);
+    const crossSt=cross.reduce((s,c)=>s+c.st,0);
+    const rooms=[{floor:f.floor, co:f.keepCo, st:f.keepSt, total:f.keepCo+f.keepSt}];
+    cross.forEach(c=>rooms.push({floor:c.toFloor,co:c.co,st:c.st,total:c.co+c.st}));
+    const totalCoP=f.keepCo+crossCo, totalStP=f.keepSt+crossSt;
     return {
-      personId: p.id,
-      mainFloor,
-      crossFloor,
-      crossCo: crossRoom.co,
-      crossSt: crossRoom.st,
-      crossTotal: crossRoom.count,
+      personId:f.personId, mainFloor:f.floor, target:f.tgt,
+      rooms, floorList:[f.floor,...cross.map(c=>c.toFloor)].sort((a,b)=>a-b),
+      totalCo:totalCoP, totalSt:totalStP, totalRooms:totalCoP+totalStP,
+      ok:(totalCoP+totalStP)===f.tgt,
     };
   });
 
-  // ── 渲染 ──────────────────────────────────────
-
-  document.getElementById('results').style.display = 'block';
-  setTimeout(() => document.getElementById('results').scrollIntoView({ behavior: 'smooth' }), 100);
-
-  // STEP 1 總覽
-  document.getElementById('overview-grid').innerHTML = `
-    <div class="ov-card">
-      <div class="ov-value">${totalRoomsAll}</div>
-      <div class="ov-label">今日總間數</div>
-      <div class="ov-sub">擋房${blockRooms}，實際${totalRooms}</div>
-    </div>
-    <div class="ov-card">
-      <div class="ov-value">${staff}</div>
-      <div class="ov-label">今日人力</div>
-    </div>
-    <div class="ov-card">
-      <div class="ov-value">${lo === hi ? lo : lo + '～' + hi}</div>
-      <div class="ov-label">每人目標間數</div>
-      <div class="ov-sub">${lo === hi ? '平均整除' : `${hiCount}人拿${hi}間，${loCount}人拿${lo}間`}</div>
-    </div>
-    <div class="ov-card">
-      <div class="ov-value">${(totalCheckout / staff).toFixed(1)}</div>
-      <div class="ov-label">退房均分目標/人</div>
-      <div class="ov-sub">共${totalCheckout}間退房</div>
-    </div>`;
-
-  // STEP 2 缺口表
-  document.getElementById('gap-table').innerHTML = `
-    <thead><tr>
-      <th>樓層</th><th>退</th><th>續</th><th>總間</th><th>vs 目標</th><th>負責人數</th>
-    </tr></thead>
-    <tbody>
-    ${raw.map(d => {
-      const diff = d.total - lo;
-      const needTwo = d.total > lo;
-      const gc = d.total > hi ? 'over' : d.total < lo ? 'under' : 'exact';
-      const gl = d.total > hi ? `多${d.total - hi}` : d.total < lo ? `少${lo - d.total}` : '剛好';
-      const pCount = floorPersons[d.floor] ? floorPersons[d.floor].length : 0;
-      return `<tr>
-        <td class="floor-col">${d.floor}F</td>
-        <td>${d.checkout}</td><td>${d.stay}</td><td>${d.total}</td>
-        <td><span class="pill ${gc}">${gl}</span></td>
-        <td style="color:${pCount===2?'var(--accent)':'var(--muted)'}">${pCount}人</td>
-      </tr>`;
-    }).join('')}
-    </tbody>`;
-
-  // STEP 3 配對過程（以樓層為主角）
-  // 建立「每層給出去了什麼」的視角
-  // 找出每個人的主樓（拿最多間的那層）和副樓（跨過去的那層）
-  // 從樓層角度：這層有沒有間數被帶去別層？
-
-  // 建立每層的「流出」資訊：哪些人把這層的房間帶去別層
-  // 一個人如果跑兩層，他的副樓對主樓來說是「流出」
-  const floorOutflow = {}; // floor -> [{ toPerson, toFloor, co, st, total }]
-  raw.forEach(d => floorOutflow[d.floor] = []);
-
-  persons.forEach(p => {
-    if (p.floorList.length < 2) return;
-    // 找主樓（間數最多）和副樓
-    const sorted = p.floorList.map(f => {
-      const r = p.rooms.find(r => r.floor === f);
-      return { floor: f, count: r ? r.count : 0, co: r ? r.co : 0, st: r ? r.st : 0 };
-    }).sort((a, b) => b.count - a.count);
-
-    const mainFloor = sorted[0].floor;
-    // 副樓：這個人從副樓帶走的間數，對副樓來說是「流出」
-    for (let i = 1; i < sorted.length; i++) {
-      const sub = sorted[i];
-      floorOutflow[sub.floor].push({
-        personId: p.id,
-        toFloor: mainFloor,
-        co: sub.co,
-        st: sub.st,
-        total: sub.count,
-      });
-    }
+  // ── 調派視角（每層撥出去的去哪） ────────────
+  const floorOutMap={};
+  raw.forEach(d=>floorOutMap[d.floor]=[]);
+  persons.forEach(p=>{
+    p.rooms.slice(1).forEach(r=>{
+      floorOutMap[r.floor].push({fromMainFloor:p.mainFloor,co:r.co,st:r.st});
+    });
   });
 
-  const floorDispatch = raw.map(d => {
-    const outflows = floorOutflow[d.floor] || [];
-    const outCo = outflows.reduce((s, o) => s + o.co, 0);
-    const outSt = outflows.reduce((s, o) => s + o.st, 0);
-    const stayCo = d.checkout - outCo;
-    const staySt = d.stay - outSt;
-    const hasOutflow = outflows.length > 0;
-    return { ...d, outflows, outCo, outSt, stayCo, staySt, hasOutflow };
-  });
+  // ══════════════════════════════════════════════
+  //  渲染
+  // ══════════════════════════════════════════════
+  document.getElementById('results').style.display='block';
+  setTimeout(()=>document.getElementById('results').scrollIntoView({behavior:'smooth'}),100);
 
-  const pairHTML = floorDispatch.map(fd => {
-    const tag = fd.hasOutflow
-      ? `<span class="floor-dispatch-tag split">需調撥</span>`
-      : `<span class="floor-dispatch-tag single">不用調整</span>`;
+  // STEP 1
+  document.getElementById('ov-grid').innerHTML=`
+    <div class="ov-card"><div class="ov-value">${totalCo}</div><div class="ov-label">今日退房總數</div><div class="ov-sub">擋房${block}，有效${netCo}</div></div>
+    <div class="ov-card"><div class="ov-value">${staff}</div><div class="ov-label">今日人力</div></div>
+    <div class="ov-card"><div class="ov-value">${avgCoLo===avgCoHi?avgCoLo:avgCoLo+'～'+avgCoHi}</div><div class="ov-label">退房均分目標/人</div><div class="ov-sub">${netCo}÷${staff}=${avgCo.toFixed(2)}</div></div>
+    <div class="ov-card"><div class="ov-value">${totalSt}</div><div class="ov-label">今日續掃總數</div><div class="ov-sub">不參與均分</div></div>`;
 
-    // 流出的行
-    const outRows = fd.outflows.map(o => `
-      <div class="dispatch-row">
-        <div class="dispatch-chips">
-          ${o.co > 0 ? `<span class="dchip co">退 ${o.co}</span>` : ''}
-          ${o.st > 0 ? `<span class="dchip st">續 ${o.st}</span>` : ''}
+  // STEP 2
+  const modeNote = currentMode==='manual'
+    ? '<th>🟣留退</th><th>撥出退</th><th>留續</th><th>撥出續</th>'
+    : '<th>均分目標</th><th>留退</th><th>撥出退</th><th>留續</th><th>撥出續</th>';
+  document.getElementById('gap-table').innerHTML=`
+    <thead><tr><th>樓</th><th>退房</th>${modeNote}<th>實拿目標</th><th>缺口</th></tr></thead>
+    <tbody>${floorState.map(f=>{
+      const defLabel=f.deficit>0?`<span class="pill surplus">缺${f.deficit}</span>`:
+                     f.deficit<0?`<span class="pill ok">足夠</span>`:`<span class="pill ok">剛好</span>`;
+      const midCols=currentMode==='manual'
+        ?`<td class="tc-keep">${f.keepCo}</td><td class="tc-co">${f.giveCo>0?f.giveCo:'－'}</td><td class="tc-st">${f.keepSt}</td><td class="tc-st">${f.giveSt>0?f.giveSt:'－'}</td>`
+        :`<td>${avgCoLo===avgCoHi?avgCoLo:avgCoLo+'～'+avgCoHi}</td><td class="tc-keep">${f.keepCo}</td><td class="tc-co">${f.giveCo>0?f.giveCo:'－'}</td><td class="tc-st">${f.keepSt}</td><td class="tc-st">${f.giveSt>0?f.giveSt:'－'}</td>`;
+      return`<tr><td class="tc-floor">${f.floor}F</td><td class="tc-co">${f.co}</td>${midCols}<td>${f.tgt}</td><td>${defLabel}</td></tr>`;
+    }).join('')}</tbody>`;
+
+  // STEP 3
+  document.getElementById('warn-3').innerHTML='';
+  document.getElementById('dispatch-list').innerHTML=floorState.map(f=>{
+    const outs=floorOutMap[f.floor];
+    const hasMove=outs.length>0;
+    const outRows=outs.map(o=>`
+      <div class="dc-row">
+        <div class="dc-chips">
+          ${o.co>0?`<span class="chip co">退 ${o.co}</span>`:''}
+          ${o.st>0?`<span class="chip st">續 ${o.st}</span>`:''}
         </div>
-        <div class="dispatch-arrow">→</div>
-        <span class="floor-dest">${o.toFloor}F</span>
+        <div class="arrow">→</div>
+        <span class="dest-floor">${o.fromMainFloor}F 樓主帶走</span>
       </div>`).join('');
-
-    // 留在本層的
-    const stayRow = (fd.stayCo > 0 || fd.staySt > 0) ? `
-      <div class="dispatch-row stay-row">
-        <div class="dispatch-chips">
-          ${fd.stayCo > 0 ? `<span class="dchip co">退 ${fd.stayCo}</span>` : ''}
-          ${fd.staySt > 0 ? `<span class="dchip st">續 ${fd.staySt}</span>` : ''}
+    const stayRow=(f.keepCo>0||f.keepSt>0)?`
+      <div class="dc-row">
+        <div class="dc-chips">
+          ${f.keepCo>0?`<span class="chip co">退 ${f.keepCo}</span>`:''}
+          ${f.keepSt>0?`<span class="chip st">續 ${f.keepSt}</span>`:''}
         </div>
-        <div class="dispatch-arrow">→</div>
-        <span class="floor-dest stay-dest">本層</span>
-      </div>` : '';
-
-    return `
-    <div class="pair-card${fd.hasOutflow ? ' split-card' : ''}">
-      <div class="floor-dispatch-header">
-        <span class="floor-dispatch-num">${fd.floor}F</span>
-        <span class="floor-dispatch-total">共${fd.total}間｜退${fd.checkout} 續${fd.stay}</span>
-        ${tag}
+        <div class="arrow">→</div>
+        <span class="dest-here">留本層</span>
+      </div>`:'';
+    return`
+    <div class="dispatch-card${hasMove?' has-move':''}">
+      <div class="dc-header">
+        <span class="dc-floor">${f.floor}F</span>
+        <span class="dc-info">共${f.total}間｜退${f.co} 續${f.st}｜實拿${f.tgt}</span>
+        <span class="dc-tag ${hasMove?'move':'stay'}">${hasMove?'需撥出':'不用調整'}</span>
       </div>
-      ${fd.hasOutflow ? `<div class="floor-dispatch-body">${outRows}${stayRow}</div>` : ''}
+      ${hasMove?`<div class="dc-body">${outRows}${stayRow}</div>`:''}
     </div>`;
   }).join('');
 
-  // 人員彙整
-  const personSummaryHTML = persons.map(p => {
-    const floorStr = p.floorList.map(f => `${f}F`).join(' ＋ ');
-    return `<div class="person-summary-row">
-      <span class="person-badge">人員${p.id}</span>
-      <span class="person-summary-floors">${floorStr}</span>
-      <span class="person-summary-total">
-        <span class="dchip co">退${p.totalCo}</span>
-        <span class="dchip st">續${p.totalSt}</span>
-        共${p.totalRooms}間
-      </span>
-    </div>`;
-  }).join('');
-
-  document.getElementById('warn-area-3').innerHTML = '';
-  document.getElementById('pair-list').innerHTML = pairHTML +
-    `<div class="person-summary-box">
-      <div class="person-summary-title">人員彙整</div>
-      ${personSummaryHTML}
-    </div>`;
-
-  // STEP 4 最終分配
-  const coArr = persons.map(p => p.totalCo);
-  const maxCo = Math.max(...coArr), minCo = Math.min(...coArr);
-  const avgCo = totalCheckout / staff;
-  // avgCoLo / avgCoHi 已在分配邏輯中宣告，直接沿用
-
-  let warnHtml = '';
-  if (maxCo - minCo > 2) {
-    const over  = persons.filter(p => p.totalCo > avgCoHi)
-                         .map(p => `人員${p.id}（${p.floorList.join('F+')}F）退房 ${p.totalCo} 間，多 ${p.totalCo - avgCoHi} 間`);
-    const under = persons.filter(p => p.totalCo < avgCoLo)
-                         .map(p => `人員${p.id}（${p.floorList.join('F+')}F）退房 ${p.totalCo} 間，少 ${avgCoLo - p.totalCo} 間`);
-    const avgLabel = avgCoLo === avgCoHi ? avgCoLo : `${avgCoLo}～${avgCoHi}`;
-    warnHtml = `<div class="warn-box">
-      ⚠️ 退房分配不均，均分目標每人 ${avgLabel} 間<br><br>
-      ${over.length  > 0 ? '<strong>退房偏多：</strong><br>' + over.join('<br>')  + '<br><br>' : ''}
-      ${under.length > 0 ? '<strong>退房偏少：</strong><br>' + under.join('<br>') : ''}
-    </div>`;
+  // STEP 4
+  const coArr=persons.map(p=>p.totalCo);
+  const maxCo=Math.max(...coArr), minCo=Math.min(...coArr);
+  let warn4='';
+  const over=persons.filter(p=>p.totalRooms>p.target);
+  const under=persons.filter(p=>p.totalRooms<p.target);
+  if(over.length){
+    warn4+=`<div class="warn-box">⚠️ 以下樓主實拿超過目標（續掃補太多）：<br>${over.map(p=>`${p.mainFloor}F樓主：實拿${p.totalRooms}間，目標${p.target}間，多${p.totalRooms-p.target}間`).join('<br>')}</div>`;
   }
+  if(under.length){
+    warn4+=`<div class="warn-box">⚠️ 以下樓主實拿不足目標：<br>${under.map(p=>`${p.mainFloor}F樓主：實拿${p.totalRooms}間，目標${p.target}間，缺${p.target-p.totalRooms}間`).join('<br>')}</div>`;
+  }
+  if(maxCo-minCo>2){
+    warn4+=`<div class="warn-box">⚠️ 退房差距${maxCo-minCo}間（最多${maxCo}、最少${minCo}）</div>`;
+  }
+  if(!warn4) warn4=`<div class="ok-box">✓ 所有樓主實拿達標</div>`;
+  document.getElementById('warn-4').innerHTML=warn4;
 
-  document.getElementById('warn-area-4').innerHTML =
-    warnHtml || `<div class="ok-box">✓ 所有人實拿達標，退房均分</div>`;
-
-  document.getElementById('final-list').innerHTML = persons.map(p => {
-    const coColor = p.totalCo < Math.floor(avgCo) ? 'var(--warn)' :
-                    p.totalCo > Math.ceil(avgCo)  ? 'var(--accent)' : 'var(--good)';
-    const flLabel = p.floorList.length > 1
-      ? p.floorList.join('F ＋ ') + 'F'
-      : p.floorList[0] + 'F（單樓）';
-    const ok = p.totalRooms === p.target;
-    return `
-    <div class="final-card ${ok ? 'ok' : 'warn'}">
-      <div class="final-header">
-        <div class="ftag">人員${p.id}</div>
-        <div class="ffloors">${flLabel}</div>
-        <div class="ftotal" style="color:${ok?'var(--good)':'var(--warn)'}">${p.totalRooms}間</div>
+  document.getElementById('person-list').innerHTML=persons.map(p=>{
+    const coColor=p.totalCo<avgCoLo?'var(--warn)':p.totalCo>avgCoHi?'var(--accent)':'var(--good)';
+    return`
+    <div class="person-card ${p.ok?'ok':'warn'}">
+      <div class="pc-header">
+        <span class="pc-badge">${p.mainFloor}F主</span>
+        <span class="pc-floors">${p.floorList.map(f=>f+'F').join(' ＋ ')}</span>
+        <span class="pc-total" style="color:${p.ok?'var(--good)':'var(--warn)'}">${p.totalRooms}間</span>
       </div>
-      <div class="final-body">
-        ${p.rooms.map(r => `
-        <div class="final-row">
-          <span class="flabel">${r.floor}F</span>
-          ${r.co > 0 ? `<span class="chip co">退 ${r.co}</span>` : ''}
-          ${r.st > 0 ? `<span class="chip st">續 ${r.st}</span>` : ''}
-          <span style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">${r.count}間</span>
+      <div class="pc-body">
+        ${p.rooms.map(r=>`
+        <div class="pc-row">
+          <span class="pc-floor-label">${r.floor}F</span>
+          ${r.co>0?`<span class="chip co">退 ${r.co}</span>`:''}
+          ${r.st>0?`<span class="chip st">續 ${r.st}</span>`:''}
+          <span class="chip grey">${r.total}間</span>
         </div>`).join('')}
-        <div class="final-summary">
+        <div class="pc-summary">
           <span>退房 <span style="color:${coColor};font-weight:700">${p.totalCo}</span></span>
           <span>續掃 <span style="color:var(--text)">${p.totalSt}</span></span>
-          <span>合計 <span style="color:${ok?'var(--good)':'var(--warn)'};font-weight:700">${p.totalRooms}／${p.target} ${ok?'✓':'✗'}</span></span>
+          <span>合計 <span style="color:${p.ok?'var(--good)':'var(--warn)'};font-weight:700">${p.totalRooms}／${p.target} ${p.ok?'✓':'✗'}</span></span>
         </div>
       </div>
     </div>`;
   }).join('');
 }
 
-// 初始化
-DEFAULT_FLOORS.forEach(d => floors.push({ id: Date.now() + Math.random(), ...d }));
+// ── 初始化 ──────────────────────────────────
+document.getElementById('staff-count').innerHTML=makeOpts(1,30,12);
+document.getElementById('block-count').innerHTML=makeOpts(0,30,0);
+DEFAULT.forEach(d=>floors.push({id:Date.now()+Math.random(),...d,keep:null}));
 renderFloors();
 updateSummary();
 </script>
